@@ -1,0 +1,47 @@
+Rota de API elaborada para buscar tweets com base em diferentes critérios, como hashtags, palavras-chaves, localização...
+
+using System;
+using System.Collections.Generic;
+using System.Linq;
+using Tweetinvi;
+using Tweetinvi.Models;
+using Tweetinvi.Parameters;
+
+namespace TwitterAPIExample
+{
+    class Program
+    {
+        static void Main(string[] args)
+        {
+            // Autenticação com as credenciais da sua aplicação no Twitter
+            Auth.SetUserCredentials("seuConsumerKey", "seuConsumerSecret", "seuAccessToken", "seuAccessTokenSecret");
+
+            // Definindo a palavra-chave para buscar tweets
+            string palavraChave = "openai";
+
+            // Fazendo uma solicitação para obter tweets com a palavra-chave especificada
+            var searchParameters = new SearchTweetsParameters(palavraChave)
+            {
+                // Define a quantidade de tweets a serem retornados
+                MaximumNumberOfResults = 10,
+                // Define o idioma dos tweets a serem retornados (opcional)
+                Lang = LanguageFilter.English,
+                // Define se os tweets devem conter mídia (imagens, vídeos, etc.) (opcional)
+                Filters = TweetSearchFilters.HasImages
+            };
+
+            var tweets = Search.SearchTweets(searchParameters);
+        
+ // Exibindo os tweets obtidos
+            foreach (var tweet in tweets)
+            {
+                Console.WriteLine($"Tweet: {tweet.FullText}");
+                Console.WriteLine($"Usuário: {tweet.CreatedBy.Name} (@{tweet.CreatedBy.ScreenName})");
+                Console.WriteLine($"Data de Criação: {tweet.CreatedAt}");
+                Console.WriteLine($"Número de Retweets: {tweet.RetweetCount}");
+                Console.WriteLine($"Número de Favoritos: {tweet.FavoriteCount}");
+                Console.WriteLine();
+            }
+        }
+    }
+}
