@@ -1,0 +1,139 @@
+// Postar um tweet
+var tweet = Tweetinvi.Tweet.PublishTweet("Texto do seu tweet aqui!");
+Console.WriteLine("Tweet publicado com sucesso! ID: " + tweet.Id);
+
+// Obter os últimos tweets de um usuário
+var userTimelineParameters = new UserTimelineParameters
+{
+    MaximumNumberOfTweetsToRetrieve = 10 // Defina o número desejado de tweets a serem recuperados
+};
+var tweets = Timeline.GetUserTimeline("nome_do_usuario", userTimelineParameters);
+foreach (var tweet in tweets)
+{
+    Console.WriteLine(tweet.Text);
+}
+
+// Procurar tweets com uma determinada hashtag
+var searchParameter = new SearchTweetsParameters("#sua_hashtag_aqui")
+{
+    MaximumNumberOfResults = 10 // Defina o número desejado de resultados
+};
+var tweets = Search.SearchTweets(searchParameter);
+foreach (var tweet in tweets)
+{
+    Console.WriteLine(tweet.Text);
+}
+
+// Seguir um usuário
+var userToFollow = User.GetUserFromScreenName("nome_do_usuario_a_seguir");
+var followedUser = userToFollow?.Follow();
+if (followedUser != null)
+{
+    Console.WriteLine($"Você está agora seguindo @{followedUser.ScreenName}!");
+}
+else
+{
+    Console.WriteLine("Erro ao tentar seguir o usuário.");
+}
+
+// Retweetar um tweet
+var tweetToRetweet = Tweet.GetTweet(123456789); // Substitua pelo ID do tweet que você deseja retweetar
+var retweetedTweet = tweetToRetweet?.PublishRetweet();
+if (retweetedTweet != null)
+{
+    Console.WriteLine($"Você retweetou o tweet com sucesso! ID: {retweetedTweet.Id}");
+}
+else
+{
+    Console.WriteLine("Erro ao tentar retweetar o tweet.");
+}
+
+// Enviar uma mensagem direta para um usuário
+var recipientUser = User.GetUserFromScreenName("nome_do_usuario_destinatario");
+var message = "Olá! Esta é uma mensagem direta enviada através da API do Twitter.";
+var messageParameters = new PublishMessageParameters(message)
+{
+    MessageTarget = new MessageTarget(recipientUser)
+};
+var sentMessage = Message.PublishMessage(messageParameters);
+if (sentMessage != null)
+{
+    Console.WriteLine($"Mensagem direta enviada para @{recipientUser.ScreenName} com sucesso!");
+}
+else
+{
+    Console.WriteLine("Erro ao tentar enviar a mensagem direta.");
+}
+
+// Bloquear um usuário
+var userToBlock = User.GetUserFromScreenName("nome_do_usuario_a_bloquear");
+var blockedUser = userToBlock?.Block();
+if (blockedUser != null)
+{
+    Console.WriteLine($"Você bloqueou @{blockedUser.ScreenName}.");
+}
+else
+{
+    Console.WriteLine("Erro ao tentar bloquear o usuário.");
+}
+
+
+// Seguir um usuário
+var userToFollow = User.GetUserFromScreenName("nome_do_usuario_a_seguir");
+var followedUser = userToFollow?.Follow();
+if (followedUser != null)
+{
+    Console.WriteLine($"Você está agora seguindo @{followedUser.ScreenName}!");
+}
+else
+{
+    Console.WriteLine("Erro ao tentar seguir o usuário.");
+}
+
+// Obter menções a um usuário
+var mentionsTimeline = Timeline.GetMentionsTimeline();
+foreach (var mention in mentionsTimeline)
+{
+    Console.WriteLine($"Menção de @{mention.CreatedBy.ScreenName}: {mention.Text}");
+
+    // Responder à menção
+    var replyText = $"@{mention.CreatedBy.ScreenName} Obrigado pela menção!";
+    var replyTweet = Tweet.PublishTweetInReplyTo(replyText, mention);
+    if (replyTweet != null)
+    {
+        Console.WriteLine($"Resposta enviada com sucesso! ID: {replyTweet.Id}");
+    }
+    else
+    {
+        Console.WriteLine("Erro ao tentar responder à menção.");
+    }
+}
+
+// Fazer uma pesquisa avançada de tweets
+var searchParameters = new SearchTweetsParameters("query")
+{
+    Lang = LanguageFilter.Portuguese, // Filtro de idioma para português
+    MaximumNumberOfResults = 10, // Defina o número desejado de resultados
+    Since = new DateTime(2023, 1, 1), // Data inicial da pesquisa
+    Until = new DateTime(2023, 12, 31) // Data final da pesquisa
+};
+var searchResults = Search.SearchTweets(searchParameters);
+foreach (var tweet in searchResults)
+{
+    Console.WriteLine($"Tweet encontrado: {tweet.Text}");
+}
+
+// Obter informações de um usuário específico
+var user = User.GetUserFromScreenName("nome_do_usuario");
+if (user != null)
+{
+    Console.WriteLine($"Nome: {user.Name}");
+    Console.WriteLine($"Nome de usuário: {user.ScreenName}");
+    Console.WriteLine($"Seguidores: {user.FollowersCount}");
+    Console.WriteLine($"Seguindo: {user.FriendsCount}");
+    Console.WriteLine($"Descrição: {user.Description}");
+}
+else
+{
+    Console.WriteLine("Usuário não encontrado.");
+}
