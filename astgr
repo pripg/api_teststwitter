@@ -1,0 +1,79 @@
+Abaixo está uma rota mais elaborada que envolve a análise de sentimentos dos tweets de um determinado usuário e a geração de um relatório com os resultados. 
+Para isso, vamos usar a API de análise de sentimentos do Azure e a API do Twitter.
+
+using System;
+using System.Collections.Generic;
+using System.Linq;
+using Microsoft.Azure.CognitiveServices.Language.TextAnalytics;
+using Microsoft.Azure.CognitiveServices.Language.TextAnalytics.Models;
+using Tweetinvi;
+using Tweetinvi.Models;
+
+class Program
+{
+    static void Main(string[] args)
+    {
+        // Configuração da autenticação com o Twitter
+        Auth.SetUserCredentials("CONSUMER_KEY", "CONSUMER_SECRET", "ACCESS_TOKEN", "ACCESS_TOKEN_SECRET");
+
+        // Configuração da autenticação com o Azure Text Analytics
+        string subscriptionKey = "YOUR_SUBSCRIPTION_KEY";
+        string endpoint = "YOUR_ENDPOINT";
+        var credentials = new ApiKeyServiceClientCredentials(subscriptionKey);
+        var client = new TextAnalyticsClient(credentials)
+        {
+            Endpoint = endpoint
+        };
+
+        // Nome do usuário do Twitter
+        string username = "USERNAME";
+
+        // Obter tweets do usuário
+        var userTimelineParameters = new UserTimelineParameters
+        {
+            MaximumNumberOfTweetsToRetrieve = 50, // Número de tweets a serem recuperados
+            ExcludeReplies = true, // Excluir respostas para evitar duplicatas
+            IncludeRTS = false // Excluir retweets para focar nos tweets originais do usuário
+        };
+        var tweets = Timeline.GetUserTimeline(username, userTimelineParameters);
+
+        // Lista para armazenar os textos dos tweets
+        List<string> tweetTexts = tweets.Select(t => t.FullText).ToList();
+
+        // Analisar sentimentos dos tweets usando a API do Azure
+        var sentimentResults = client.SentimentBatch(tweetTexts.Select(t => new MultiLanguageInput("en", "0", t)).ToList());
+
+        // Gerar relatório de sentimentos
+        Console.WriteLine($"Relatório de Sentimentos para @{username}:");
+        Console.WriteLine("----------------------------------------");
+        for (int i = 0; i < sentimentResults.Documents.Count; i++)
+        {
+            var tweet = tweets[i];
+            var sentiment = sentimentResults.Documents[i].Sentiment;
+
+            Console.WriteLine($"Tweet: {tweet.FullText}");
+            Console.WriteLine($"Sentimento: {sentiment}");
+
+            // Classificar o sentimento
+            string sentimentCategory;
+            switch (sentiment)
+            {
+                case "positive":
+                    sentimentCategory = "Positivo";
+                    break;
+                case "neutral":
+                    sentimentCategory = "Neutro";
+                    break;
+                case "negative":
+                    sentimentCategory = "Negativo";
+                    break;
+                default:
+                    sentimentCategory = "Desconhecido";
+                    break;
+            }
+            Console.WriteLine($"Classificação: {sentimentCategory}");
+
+            Console.WriteLine("----------------------------------------");
+        }
+    }
+}
